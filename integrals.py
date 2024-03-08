@@ -116,7 +116,7 @@ def deltaf_FP(m, q, h, p, e):
         + 0.25 * beta**2
         - 0.25 * beta**2 * p * q ** (p - 1)
         + integral 
-    )/(-beta) + h*m - (0.25 * beta**2 + np.log(2))/(-beta)
+    )/(-beta) + h*m - (0.25 * beta_q_e(0,0, e)**2 + np.log(2))/(-beta_q_e(0,0, e))
 
 @njit()
 def s_FP(m, q, h, p,e):
