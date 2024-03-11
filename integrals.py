@@ -30,8 +30,8 @@ def compute_q_FP(m, q, h, p, e):
     )
 
 
-#@njit()
-#def compute_m(m, J0, q, e):
+# @njit()
+# def compute_m(m, J0, q, e):
 #    return np.sum(
 #        weights
 #        * np.tanh(beta_q_e(q, m, e) * (3 * J0 * m**2 + roots * np.sqrt(3 / 2) * q))
@@ -165,8 +165,23 @@ def s_FP(m, q, h, p, e):
     )
 
 
-#@njit()
-#def compute_s(m, q, e):
+def dAT_condition(q, m, h, beta, J0, p):
+    integral = np.sum(
+        weights
+        * (
+            np.cosh(
+                np.sqrt(0.5 * p * beta**2 * q ** (p - 1)) * roots
+                + beta * h
+                + beta * J0 * p * m ** (p - 1)
+            )
+            ** (-4)
+        )
+    )
+    return 1 - 0.5 * p * (p - 1) * beta**2 * q ** (p - 2) * integral
+
+
+# @njit()
+# def compute_s(m, q, e):
 #    beta = beta_q_e(q, m, e)
 #    J0 = beta / 2
 #    i = np.sum(
