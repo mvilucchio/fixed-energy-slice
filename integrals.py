@@ -8,8 +8,8 @@ weights = np.array(w) / np.sqrt(np.pi)
 
 
 @njit()
-def beta_q_e(q, m, e):
-    return -2 * e / (1 + m**3 - q**3)
+def beta_q_e(q, m, e,p):
+    return -2 * e / (1 + m**p - q**p)
 
 
 @njit()
@@ -18,9 +18,9 @@ def compute_q_FP(m, q, h, p, e):
         weights
         * (
             np.tanh(
-                beta_q_e(q, m, e)
+                beta_q_e(q, m, e,p)
                 * (
-                    p * (0.5 * beta_q_e(q, m, e)) * m ** (p - 1)
+                    p * (0.5 * beta_q_e(q, m, e,p)) * m ** (p - 1)
                     + roots * np.sqrt(p * q ** (p - 1) / 2)
                     + h
                 )
@@ -34,7 +34,7 @@ def compute_q_FP(m, q, h, p, e):
 # def compute_m(m, J0, q, e):
 #    return np.sum(
 #        weights
-#        * np.tanh(beta_q_e(q, m, e) * (3 * J0 * m**2 + roots * np.sqrt(3 / 2) * q))
+#        * np.tanh(beta_q_e(q, m, e,p) * (3 * J0 * m**2 + roots * np.sqrt(3 / 2) * q))
 #    )
 
 
@@ -43,9 +43,9 @@ def compute_m_FP(m, q, h, p, e):
     return np.sum(
         weights
         * np.tanh(
-            beta_q_e(q, m, e)
+            beta_q_e(q, m, e,p)
             * (
-                p * (0.5 * beta_q_e(q, m, e)) * m ** (p - 1)
+                p * (0.5 * beta_q_e(q, m, e,p)) * m ** (p - 1)
                 + roots * np.sqrt(p * q ** (p - 1) / 2)
                 + h
             )
@@ -71,7 +71,7 @@ def compute_m_q_fixedpoint_FP(J0, h, p, beta, blend=0.8, tol=1e-7):
 
 @njit()
 def f_FP(m, q, h, p, e):
-    beta = beta_q_e(q, m, e)
+    beta = beta_q_e(q, m, e,p)
     J0 = beta / 2
     integral = np.sum(
         weights
@@ -100,7 +100,7 @@ def f_FP(m, q, h, p, e):
 
 @njit()
 def deltaf_FP(m, q, h, p, e):
-    beta = beta_q_e(q, m, e)
+    beta = beta_q_e(q, m, e,p)
     J0 = beta / 2
     integral = np.sum(
         weights
@@ -128,13 +128,13 @@ def deltaf_FP(m, q, h, p, e):
         )
         / (-beta)
         + h * m
-        - (0.25 * beta_q_e(0, 0, e) ** 2 + np.log(2)) / (-beta_q_e(0, 0, e))
+        - (0.25 * beta_q_e(0, 0, e,p) ** 2 + np.log(2)) / (-beta_q_e(0, 0, e,p))
     )
 
 
 @njit()
 def s_FP(m, q, h, p, e):
-    beta = beta_q_e(q, m, e)
+    beta = beta_q_e(q, m, e,p)
     J0 = beta / 2
     integral = np.sum(
         weights
@@ -182,7 +182,7 @@ def dAT_condition(q, m, h, beta, J0, p):
 
 # @njit()
 # def compute_s(m, q, e):
-#    beta = beta_q_e(q, m, e)
+#    beta = beta_q_e(q, m, e,p)
 #    J0 = beta / 2
 #    i = np.sum(
 #        weights
