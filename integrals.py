@@ -13,6 +13,11 @@ weights = np.array(w) / np.sqrt(np.pi)
 
 # ---
 @vectorize()
+def second_moment_bound(m, q, e, p):
+    H = 0.25*(log(256) - 2*(1-q)*log1p(-q) - (1-2*m+q) * log1p(-2*m+q) - (1+2*m+q) * log1p(2*m+q))
+    return H - 2*e**2 * (1 - m**p) ** 2/(1 + q**p)
+
+@vectorize()
 def annealed_entropy(m, e, p):
     H = -0.5 * (1 + m) * log1p(m) - 0.5 * (1 - m) * log1p(-m) + log(2)
     return H - e**2 * (1 - m**p) ** 2
