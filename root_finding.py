@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 
 
-@njit(error_model="numpy", fastmath=True)
+@njit(error_model="numpy")
 def brent_root_finder(fun, xa, xb, xtol, rtol, max_iter, args):
     xpre, xcur = xa, xb
     xblk = 0.0

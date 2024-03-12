@@ -1,12 +1,20 @@
 import numpy as np
-from numba import njit
+from numba import njit, vectorize
 from root_finding import brent_root_finder
+from math import log, log1p
 
 # gaussian integration
 r, w = np.polynomial.hermite.hermgauss(99)
 
 roots = np.sqrt(2) * np.array(r)
 weights = np.array(w) / np.sqrt(np.pi)
+
+
+# ---
+@vectorize()
+def annealed_entropy(m, e, p):
+    H = -0.5 * (1 + m) * log1p(m) - 0.5 * (1 - m) * log1p(-m) + log(2)
+    return H - e**2 * (1 - m**p) ** 2
 
 
 # ---
@@ -166,7 +174,7 @@ def compute_h(h, m, q, p, e):
 
 # ---
 @njit()
-def fixed_points_h_q(m, e, p, blend=0.8, tol=1e-8, h_init=0.8, q_init=0.5):
+def fixed_points_h_q(m, e, p, blend=0.8, tol=1e-9, h_init=0.8, q_init=0.5):
     err = 1e10
     q = q_init
     h = h_init
@@ -174,11 +182,11 @@ def fixed_points_h_q(m, e, p, blend=0.8, tol=1e-8, h_init=0.8, q_init=0.5):
     while err > 1e1 * tol:
         h_new = brent_root_finder(
             compute_h,
-            -20,
-            20,
-            tol,
-            tol,
+            -1_000,
             1_000,
+            tol,
+            tol,
+            2_000,
             (m, q, p, e),
         )
         q_new = compute_q_FP(m, q, h_new, p, e)
