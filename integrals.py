@@ -1,6 +1,7 @@
 import numpy as np
 from numba import njit, vectorize
 from root_finding import brent_root_finder
+from scipy.optimize import root_scalar
 from math import log, log1p
 
 # gaussian integration
@@ -167,28 +168,35 @@ def dAT_condition(q, m, h, beta, J0, p):
     return 1 - 0.5 * p * (p - 1) * beta**2 * q ** (p - 2) * integral
 
 
-@njit()
+# @njit()
 def compute_h(h, m, q, p, e):
     return compute_m_FP(m, q, h, p, e) - m
 
 
 # ---
-@njit()
-def fixed_points_h_q(m, e, p, blend=0.8, tol=1e-9, h_init=0.8, q_init=0.5):
+# @njit()
+def fixed_points_h_q(m, e, p, blend=0.1, tol=1e-9, h_init=-0.1, q_init=0.5):
     err = 1e10
     q = q_init
     h = h_init
 
     while err > 1e1 * tol:
-        h_new = brent_root_finder(
+        # h_new = brent_root_finder(
+        #     compute_h,
+        #     -1_000,
+        #     1_000,
+        #     tol,
+        #     tol,
+        #     2_000,
+        #     (m, q, p, e),
+        # )
+        h_new = root_scalar(
             compute_h,
-            -1_000,
-            1_000,
-            tol,
-            tol,
-            2_000,
-            (m, q, p, e),
-        )
+            bracket=[-1000, 1000],
+            args=(m, q, p, e),
+            xtol=tol,
+            rtol=tol,
+        ).root
         q_new = compute_q_FP(m, q, h_new, p, e)
 
         err = max(abs(h_new - h), abs(q_new - q))

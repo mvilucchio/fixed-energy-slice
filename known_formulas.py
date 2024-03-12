@@ -1,6 +1,20 @@
 import numpy as np
 from numba import njit
 
+def get_Tk_Td(p):
+    if p == 3:
+        T_kauz, T_dyn = 0.651385, 0.6816
+    elif p == 4:
+        T_kauz, T_dyn = 0.61688, 0.6784
+    elif p == 5:
+        T_kauz, T_dyn = 0.60695, 0.7001
+    elif p == 10:
+        T_kauz, T_dyn = 0.6005, 0.838
+    else:
+        raise ValueError("p must be 5 or 10")
+    
+    return T_kauz, T_dyn
+
 r, w = np.polynomial.hermite.hermgauss(99)
 
 roots = np.sqrt(2) * np.array(r)
