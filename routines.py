@@ -23,3 +23,18 @@ def legend_name_Tk_Td(e, T_kauz, T_dyn):
         legend_name = r"$ - 1/2T_d$"
 
     return legend_name
+
+
+def multiple_empty_arrays(shape, n):
+    return [np.empty(shape) for _ in range(n)]
+
+
+def observables(shape):
+    return {
+        "delta_f": np.empty(shape),
+        "T": np.empty(shape),
+        "dAT": np.empty(shape),
+        "q": np.empty(shape),
+        "h": np.empty(shape),
+        "s": np.empty(shape),
+    }

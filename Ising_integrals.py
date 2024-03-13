@@ -231,22 +231,6 @@ def fixed_points_h_q(m, e, p, blend=0.1, tol=1e-9, h_init=-0.1, q_init=0.5):
 
     return h, q
 
-
-def multiple_empty_arrays(shape, n):
-    return [np.empty(shape) for _ in range(n)]
-
-
-def observables(shape):
-    return {
-        "delta_f": np.empty(shape),
-        "T": np.empty(shape),
-        "dAT": np.empty(shape),
-        "q": np.empty(shape),
-        "h": np.empty(shape),
-        "s": np.empty(shape),
-    }
-
-
 # @dataclass
 # class Observables:
 #     T: np.ndarray
