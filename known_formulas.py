@@ -1,19 +1,36 @@
 import numpy as np
 from numba import njit
+from math import sqrt, log
 
-def get_Tk_Td(p):
-    if p == 3:
-        T_kauz, T_dyn = 0.651385, 0.6816
-    elif p == 4:
-        T_kauz, T_dyn = 0.61688, 0.6784
-    elif p == 5:
-        T_kauz, T_dyn = 0.60695, 0.7001
-    elif p == 10:
-        T_kauz, T_dyn = 0.6005, 0.838
+
+def get_Tk_Td(p, model="ising"):
+    if model == "ising":
+        if p == 3:
+            T_kauz, T_dyn = 0.651385, 0.6816
+        elif p == 4:
+            T_kauz, T_dyn = 0.61688, 0.6784
+        elif p == 5:
+            T_kauz, T_dyn = 0.60695, 0.7001
+        elif p == 10:
+            T_kauz, T_dyn = 0.6005, 0.838
+        else:
+            raise ValueError("p must be 3, 4, 5 or 10")
+    elif model == "spherical":
+        if p == 3:
+            T_kauz, T_dyn = 0.586, 0.611
+        elif p == 4:
+            T_kauz, T_dyn = 0.502, 0.544
+        elif p == 5:
+            T_kauz, T_dyn = 0.461, 0.511
+        elif p == 10:
+            T_kauz, T_dyn = 0.382, 0.462
+        else:
+            raise ValueError("p must be 3, 4, 5 or 10")
     else:
-        raise ValueError("p must be 5 or 10")
-    
+        raise ValueError("model must be 'ising' or 'spherical'")
+
     return T_kauz, T_dyn
+
 
 r, w = np.polynomial.hermite.hermgauss(99)
 
@@ -32,13 +49,7 @@ def compute_q_standard(m, q, p, β, J0):
     return np.sum(
         weights
         * (
-            np.tanh(
-                β
-                * (
-                    p * J0 * m ** (p - 1)
-                    + roots * np.sqrt(p * q ** (p - 1) / 2)
-                )
-            )
+            np.tanh(β * (p * J0 * m ** (p - 1) + roots * np.sqrt(p * q ** (p - 1) / 2)))
             ** 2
         )
     )
@@ -48,10 +59,7 @@ def compute_q_standard(m, q, p, β, J0):
 def compute_m_standard(m, q, p, β, J0):
     return np.sum(
         weights
-        * np.tanh(
-            β
-            * (p * J0 * m ** (p - 1) + roots * np.sqrt(p * q ** (p - 1) / 2))
-        )
+        * np.tanh(β * (p * J0 * m ** (p - 1) + roots * np.sqrt(p * q ** (p - 1) / 2)))
     )
 
 
@@ -93,3 +101,59 @@ def compute_free_energy_standard(m, q, p, β, J0):
 #         - np.log(2) * T
 #         + integral
 #     )
+
+
+@njit()
+def g(q, beta, p):
+    return 0.5 * beta**2 * q**p
+
+
+@njit()
+def D_g(q, beta, p):
+    return 0.5 * beta**2 * p * q ** (p - 1)
+
+
+@njit()
+def h(q, beta, p):
+    return beta**2 * q**p
+
+
+@njit()
+def D_h(q, beta, p):
+    return beta**2 * p * q ** (p - 1)
+
+
+def iterate_single_spherical(beta, p, q_init=0.8, m_init=0.8, tol=1e-6, blend=0.8):
+    q = q_init
+    m = m_init
+    err = tol + 1.0
+    iter = 0
+
+    while (tol < err and iter < 10_000) or iter < 30:
+        A_new = D_g(q, beta, p)
+        B_new = 0.5 * D_h(m, beta, p)
+
+        C_new = A_new + B_new**2
+
+        q_new = 0.5 * (2 + 1 / C_new - sqrt(1 + 4 * C_new) / C_new)
+        m_new = B_new * (1 - q_new)
+
+        err = max([abs(q - q_new), abs(m - m_new)])
+        q = blend * q_new + (1 - blend) * q
+        m = blend * m_new + (1 - blend) * m
+        iter += 1
+
+    return q, m
+
+
+@njit()
+def free_energy_FP_spherical(m, q, p, beta):
+    return -(
+        1
+        + log(2 * np.pi)
+        + g(1, beta, p)
+        - g(q, beta, p)
+        + log(1 - q)
+        + (q - m**2) / (1 - q)
+        + h(m, beta, p)
+    ) / (2 * beta)
