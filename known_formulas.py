@@ -88,6 +88,9 @@ def compute_free_energy_standard(m, q, p, β, J0):
         + integral / β
     )
 
+@njit()
+def compute_energy_standard(m, q, p, β, J0):
+    return -J0 * m**p - 0.5 * β * (1 - q**p)
 
 # def free_energy_1RSB(x, q0, q1, T, J0, p):
 #     integral = np.sum(weights_small * ())
@@ -157,3 +160,4 @@ def free_energy_FP_spherical(m, q, p, beta):
         + (q - m**2) / (1 - q)
         + h(m, beta, p)
     ) / (2 * beta)
+

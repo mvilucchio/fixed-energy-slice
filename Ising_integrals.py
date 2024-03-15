@@ -46,8 +46,8 @@ def annealed_entropy(m, e, p):
 
 # ---
 @njit()
-def beta_q_e(q, m, e, p):
-    return -2 * e / (1 + m**p - q**p)
+def beta_q_e(q, m, e, p, h):
+    return -2*( e* (1 - m**p) + 0*m)/(1 - q**p)
 
 
 @njit()
@@ -56,9 +56,11 @@ def compute_q_FP(m, q, h, p, e):
         weights
         * (
             np.tanh(
-                beta_q_e(q, m, e, p)
+                beta_q_e(q, m, e, p, h)
                 * (
-                    p * (0.5 * beta_q_e(q, m, e, p)) * m ** (p - 1)
+                    p * (
+                        -e
+                    ) * m ** (p - 1)
                     + roots * np.sqrt(p * q ** (p - 1) / 2)
                     + h
                 )
@@ -73,9 +75,9 @@ def compute_m_FP(m, q, h, p, e):
     return np.sum(
         weights
         * np.tanh(
-            beta_q_e(q, m, e, p)
+            beta_q_e(q, m, e, p, h)
             * (
-                p * (0.5 * beta_q_e(q, m, e, p)) * m ** (p - 1)
+                p * (-e) * m ** (p - 1)
                 + roots * np.sqrt(p * q ** (p - 1) / 2)
                 + h
             )
@@ -85,8 +87,8 @@ def compute_m_FP(m, q, h, p, e):
 
 @njit()
 def f_FP(m, q, h, p, e):
-    beta = beta_q_e(q, m, e, p)
-    J0 = beta / 2
+    beta = beta_q_e(q, m, e, p, h)
+    J0 = - e
     integral = np.sum(
         weights
         * (
@@ -109,13 +111,13 @@ def f_FP(m, q, h, p, e):
         + 0.25 * beta**2
         - 0.25 * beta**2 * p * q ** (p - 1)
         + integral
-    ) / (-beta) + h * m
+    ) / (-beta) #+ h * m
 
 
 @njit()
 def deltaf_FP(m, q, h, p, e):
-    beta = beta_q_e(q, m, e, p)
-    J0 = beta / 2
+    beta = beta_q_e(q, m, e, p, h)
+    J0 = -e
     integral = np.sum(
         weights
         * (
@@ -142,14 +144,14 @@ def deltaf_FP(m, q, h, p, e):
         )
         / (-beta)
         + h * m
-        - (0.25 * beta_q_e(0, 0, e, p) ** 2 + np.log(2)) / (-beta_q_e(0, 0, e, p))
+        - (0.25 * beta_q_e(0, 0, e, p, h) ** 2 + np.log(2)) / (-beta_q_e(0, 0, e, p, h))
     )
 
 
 @njit()
 def s_FP(m, q, h, p, e):
-    beta = beta_q_e(q, m, e, p)
-    J0 = beta / 2
+    beta = beta_q_e(q, m, e, p, h)
+    J0 = -e
     integral = np.sum(
         weights
         * (
@@ -205,7 +207,7 @@ def fixed_points_h_q(m, e, p, blend=0.1, tol=1e-9, h_init=-0.1, q_init=0.5):
     err = 1e10
     q = q_init
     h = h_init
-
+    iter = 0
     while err > 1e1 * tol:
         # h_new = brent_root_finder(
         #     compute_h,
@@ -216,6 +218,7 @@ def fixed_points_h_q(m, e, p, blend=0.1, tol=1e-9, h_init=-0.1, q_init=0.5):
         #     2_000,
         #     (m, q, p, e),
         # )
+        iter +=1
         h_new = root_scalar(
             compute_h,
             bracket=[-1000, 1000],
@@ -228,6 +231,8 @@ def fixed_points_h_q(m, e, p, blend=0.1, tol=1e-9, h_init=-0.1, q_init=0.5):
         err = max(abs(h_new - h), abs(q_new - q))
         h = blend * h + (1 - blend) * h_new
         q = blend * q + (1 - blend) * q_new
+        if (iter > 1_000):
+            raise ValueError('Fixed point iteration did not converge')
 
     return h, q
 
