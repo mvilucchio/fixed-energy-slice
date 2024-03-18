@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit, vectorize
 from root_finding import brent_root_finder
 from scipy.optimize import root_scalar
-from math import log, log1p
+from math import log, log1p, exp, atanh
 
 # gaussian integration
 r, w = np.polynomial.hermite.hermgauss(99)
@@ -43,11 +43,20 @@ def annealed_entropy(m, e, p):
     H = -0.5 * (1 + m) * log1p(m) - 0.5 * (1 - m) * log1p(-m) + log(2)
     return H - e**2 * (1 - m**p) ** 2
 
+@njit()
+def deriv_ann_entropy(m, e, p):
+    return 2 * e**2 * m**(p-1) * (-1 + m**p) * p + np.arctanh(m)
+
 
 # ---
-@njit()
+#@njit()
+#def beta_q_e(q, m, e, p, h):
+#    return -2*( e* (1 - m**p) + 0*m)/(1 - q**p)
+
+@vectorize()
 def beta_q_e(q, m, e, p, h):
-    return -2*( e* (1 - m**p) + 0*m)/(1 - q**p)
+    return 2*exp( log(-e) + log1p(-m**p) - log1p(-q**p) )
+
 
 
 @njit()
@@ -111,7 +120,7 @@ def f_FP(m, q, h, p, e):
         + 0.25 * beta**2
         - 0.25 * beta**2 * p * q ** (p - 1)
         + integral
-    ) / (-beta) #+ h * m
+    ) / (-beta) + h * m
 
 
 @njit()
@@ -144,7 +153,7 @@ def deltaf_FP(m, q, h, p, e):
         )
         / (-beta)
         + h * m
-        - (0.25 * beta_q_e(0, 0, e, p, h) ** 2 + np.log(2)) / (-beta_q_e(0, 0, e, p, h))
+        - (0.25 * beta_q_e(0, 0, e, p, 0) ** 2 + np.log(2)) / (-beta_q_e(0, 0, e, p, 0))
     )
 
 
@@ -203,7 +212,7 @@ def compute_h(h, m, q, p, e):
 
 # ---
 # @njit()
-def fixed_points_h_q(m, e, p, blend=0.1, tol=1e-9, h_init=-0.1, q_init=0.5):
+def fixed_points_h_q(m, e, p, blend=0.25, tol=1e-9, h_init=-0.1, q_init=0.01):
     err = 1e10
     q = q_init
     h = h_init
@@ -221,36 +230,22 @@ def fixed_points_h_q(m, e, p, blend=0.1, tol=1e-9, h_init=-0.1, q_init=0.5):
         iter +=1
         h_new = root_scalar(
             compute_h,
-            bracket=[-1000, 1000],
+            bracket=[-1e3, 1e3],
             args=(m, q, p, e),
+            method = "bisect",
             xtol=tol,
             rtol=tol,
         ).root
         q_new = compute_q_FP(m, q, h_new, p, e)
+        if (q_new >= 1):
+            print(f"q_new = {q_new}")
 
         err = max(abs(h_new - h), abs(q_new - q))
         h = blend * h + (1 - blend) * h_new
         q = blend * q + (1 - blend) * q_new
-        if (iter > 1_000):
+        if (iter > 10_000):
             raise ValueError('Fixed point iteration did not converge')
+            #h = np.NaN
+            #q = np.NaN
 
     return h, q
-
-# @dataclass
-# class Observables:
-#     T: np.ndarray
-#     q: np.ndarray
-#     h: np.ndarray
-#     delta_f: np.ndarray
-#     s: np.ndarray
-#     dAT: np.ndarray
-
-# def observables(shape):
-#     return Observables(
-#         T=np.empty(shape),
-#         q=np.empty(shape),
-#         h=np.empty(shape),
-#         delta_f=np.empty(shape),
-#         s=np.empty(shape),
-#         dAT=np.empty(shape)
-#     )

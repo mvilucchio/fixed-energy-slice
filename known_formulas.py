@@ -6,13 +6,15 @@ from math import sqrt, log
 def get_Tk_Td(p, model="ising"):
     if model == "ising":
         if p == 3:
-            T_kauz, T_dyn = 0.651385, 0.6816
+            T_kauz, T_dyn = 0.651385, 0.6815
         elif p == 4:
             T_kauz, T_dyn = 0.61688, 0.6784
         elif p == 5:
             T_kauz, T_dyn = 0.60695, 0.7001
         elif p == 10:
             T_kauz, T_dyn = 0.6005, 0.838
+        elif p == 20:
+            T_kauz, T_dyn = 0.5/np.sqrt(np.log(2)), 1.0615
         else:
             raise ValueError("p must be 3, 4, 5 or 10")
     elif model == "spherical":
