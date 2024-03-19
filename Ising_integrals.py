@@ -57,7 +57,9 @@ def deriv_ann_entropy(m, e, p):
 def beta_q_e(q, m, e, p, h):
     return 2*exp( log(-e) + log1p(-m**p) - log1p(-q**p) )
 
-
+@vectorize()
+def e_q_beta(q, m, beta, p):
+    return -exp( log(beta/2) + log1p(-q**p) - log1p(-m**p) )
 
 @njit()
 def compute_q_FP(m, q, h, p, e):

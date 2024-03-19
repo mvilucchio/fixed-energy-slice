@@ -37,4 +37,6 @@ def observables(shape):
         "q": np.empty(shape),
         "h": np.empty(shape),
         "s": np.empty(shape),
+        "m_check": np.empty(shape),
+        "e_check": np.empty(shape),
     }
