@@ -40,16 +40,3 @@ def observables(shape):
         "m_check": np.empty(shape),
         "e_check": np.empty(shape),
     }
-
-def observables_Sph(shape):
-    return {
-        #"delta_f": np.empty(shape),
-        "T": np.empty(shape),
-        #"dAT": np.empty(shape),
-        "q": np.empty(shape),
-        "h": np.empty(shape),
-        "f": np.empty(shape),
-        "s": np.empty(shape),
-        "m_check": np.empty(shape),
-        "e_check": np.empty(shape),
-    }

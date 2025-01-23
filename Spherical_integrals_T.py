@@ -57,13 +57,13 @@ def f_FP(q, m, h, p, T):
     beta = 1/T
     J0 = 1/(2*T)
     return (
-        0.5 * beta**2 * (0 - q**p) #switch to 1
+        0.5 * beta**2 * (1 - q**p) #switch to 1
         #+ 2 * beta * h * m
         + log1p(-q)
         + (q - m**2) / (1 - q)
         + 2 * beta * J0 * m**p
-        #+ 1 + log(2*pi)
-    )/ 1#(-2 * beta)
+        + 1 + log(2*pi)
+    )/ (-2 * beta)
 
 def s_FP(q, m, h, p, T):
     beta = 1/T

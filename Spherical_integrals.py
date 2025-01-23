@@ -36,16 +36,17 @@ def fixed_points_h_q(m, e, p, blend=0.25, tol=1e-9, h_init=-0.1, q_init=0.01):
     h = h_init
     iter = 0
     while err > 1e1 * tol:
-        iter +=1
+        iter += 1
         h_new = root_scalar(
             compute_h,
-            bracket=[-1e3, 1e3],
+            bracket=[-1e4, 1e4],
             args=(m, q, p, e),
             method = "bisect",
             xtol=tol,
             rtol=tol,
         ).root
         q_new = compute_q_FP(m, q, h_new, p, e)
+        
         if (q_new >= 1):
             print(f"q_new = {q_new}")
 
@@ -77,3 +78,9 @@ def s_FP(q, m, h, p, e):
     beta = beta_q_e(q, m, e, p, h)
     return beta*(e - f_FP(q, m, h, p, e) )
 
+
+
+@vectorize()
+def annealed_entropy(m, e, p):
+    H = (1 + log(-2*(-1 + m**2)*pi))/2.
+    return H - e**2 * (1 - m**p) ** 2
