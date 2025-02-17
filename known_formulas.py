@@ -1,6 +1,19 @@
 import numpy as np
 from numba import njit
 from math import sqrt, log
+from scipy.optimize import root
+
+
+def Td_calc_spherical(p):
+    return np.exp(
+        0.5
+        * (np.log(p) + (p - 2) * np.log(p - 2) - (p - 1) * np.log(p - 1) - np.log(2))
+    )
+
+
+def Ts_calc_spherical(p):
+    y = root(lambda x: 2 / p + 2 * x * (1 - x + np.log(x)) / ((1 - x) ** 2), 1e-9).x[0]
+    return y * (1 - y) ** (0.5 * p - 1) * np.sqrt(p / (2 * y))
 
 
 def get_Tk_Td(p, model="ising"):
@@ -14,20 +27,11 @@ def get_Tk_Td(p, model="ising"):
         elif p == 10:
             T_kauz, T_dyn = 0.6005, 0.838
         elif p == 20:
-            T_kauz, T_dyn = 0.5/np.sqrt(np.log(2)), 1.0615
+            T_kauz, T_dyn = 0.5 / np.sqrt(np.log(2)), 1.0615
         else:
             raise ValueError("p must be 3, 4, 5 or 10")
     elif model == "spherical":
-        if p == 3:
-            T_kauz, T_dyn = 0.586, 0.611
-        elif p == 4:
-            T_kauz, T_dyn = 0.502, 0.544
-        elif p == 5:
-            T_kauz, T_dyn = 0.461, 0.511
-        elif p == 10:
-            T_kauz, T_dyn = 0.382, 0.462
-        else:
-            raise ValueError("p must be 3, 4, 5 or 10")
+        return Ts_calc_spherical(p), Td_calc_spherical(p)
     else:
         raise ValueError("model must be 'ising' or 'spherical'")
 
@@ -90,13 +94,15 @@ def compute_free_energy_standard(m, q, p, β, J0):
         + integral / β
     )
 
+
 @njit()
 def compute_energy_standard(m, q, p, β, J0):
     return -J0 * m**p - 0.5 * β * (1 - q**p)
 
-def compute_Td_standard(p,blend=0.25,verbose=False):
+
+def compute_Td_standard(p, blend=0.25, verbose=False):
     T_init = 0.6
-    m_init = 1.
+    m_init = 1.0
     q_init = 0.9
     deltaT = 0.01
 
@@ -104,10 +110,10 @@ def compute_Td_standard(p,blend=0.25,verbose=False):
     q = q_init
     T = T_init
 
-    #Ts = []
-    #ms = []
+    # Ts = []
+    # ms = []
 
-    while (deltaT > 1e-8):
+    while deltaT > 1e-8:
         J0 = 1 / (2 * T)
         err = 1
         m_old = m
@@ -120,21 +126,24 @@ def compute_Td_standard(p,blend=0.25,verbose=False):
             m = blend * m + (1 - blend) * m_new
             q = blend * q + (1 - blend) * q_new
 
-        #Ts.append(T)
-        #ms.append(m)
+        # Ts.append(T)
+        # ms.append(m)
 
-        if verbose: print(f"T = {T:.9f}, m = {m:.9f}, q = {q:.9f}")
-        if (m < 0.01):
+        if verbose:
+            print(f"T = {T:.9f}, m = {m:.9f}, q = {q:.9f}")
+        if m < 0.01:
             m = m_old
             q = q_old
-            T -= deltaT/2
+            T -= deltaT / 2
             deltaT /= 2
-        else:  T += deltaT
+        else:
+            T += deltaT
     return T
 
-def compute_m_atTd_standard(p,blend=0.25,verbose=False):
+
+def compute_m_atTd_standard(p, blend=0.25, verbose=False):
     T_init = 0.6
-    m_init = 1.
+    m_init = 1.0
     q_init = 0.9
     deltaT = 0.01
 
@@ -142,10 +151,10 @@ def compute_m_atTd_standard(p,blend=0.25,verbose=False):
     q = q_init
     T = T_init
 
-    #Ts = []
-    #ms = []
+    # Ts = []
+    # ms = []
 
-    while (deltaT > 1e-9):
+    while deltaT > 1e-9:
         J0 = 1 / (2 * T)
         err = 1
         m_old = m
@@ -158,19 +167,22 @@ def compute_m_atTd_standard(p,blend=0.25,verbose=False):
             m = blend * m + (1 - blend) * m_new
             q = blend * q + (1 - blend) * q_new
 
-        #Ts.append(T)
-        #ms.append(m)
+        # Ts.append(T)
+        # ms.append(m)
 
-        if verbose: print(f"T = {T:.9f}, m = {m:.9f}, q = {q:.9f}")
-        if (m < 0.01):
+        if verbose:
+            print(f"T = {T:.9f}, m = {m:.9f}, q = {q:.9f}")
+        if m < 0.01:
             m = m_old
             q = q_old
-            T -= deltaT/2
+            T -= deltaT / 2
             deltaT /= 2
-        else:  
+        else:
             T += deltaT
             m_save = m
     return m_save
+
+
 # def free_energy_1RSB(x, q0, q1, T, J0, p):
 #     integral = np.sum(weights_small * ())
 
@@ -239,4 +251,3 @@ def free_energy_FP_spherical(m, q, p, beta):
         + (q - m**2) / (1 - q)
         + h(m, beta, p)
     ) / (2 * beta)
-

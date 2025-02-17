@@ -17,18 +17,19 @@ def plot_dashed_instable(ax, xs, ys, stable_idxs, color="black", legend_name="")
 
 def legend_name_Tk_Td(e, T_kauz, T_dyn):
     legend_name = f"{e:.3f}"
-    if isclose(e, -1 / (2 * T_kauz),rel_tol=1e-6):
+    if isclose(e, -1 / (2 * T_kauz), rel_tol=1e-6):
         legend_name = r"$- 1/2T_k$"
-    if isclose(e, -1 / (2 * T_dyn),rel_tol=1e-6):
+    if isclose(e, -1 / (2 * T_dyn), rel_tol=1e-6):
         legend_name = r"$ - 1/2T_d$"
 
     return legend_name
 
+
 def legend_name_Tk_Td_T(T, T_kauz, T_dyn):
     legend_name = f"{T:.3f}"
-    if isclose(T, T_kauz,rel_tol=1e-6):
+    if isclose(T, T_kauz, rel_tol=1e-6):
         legend_name = r"$T_k$"
-    if isclose(T,T_dyn,rel_tol=1e-6):
+    if isclose(T, T_dyn, rel_tol=1e-6):
         legend_name = r"$T_d$"
 
     return legend_name
