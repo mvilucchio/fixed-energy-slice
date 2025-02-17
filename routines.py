@@ -24,6 +24,15 @@ def legend_name_Tk_Td(e, T_kauz, T_dyn):
 
     return legend_name
 
+def legend_name_Tk_Td_T(T, T_kauz, T_dyn):
+    legend_name = f"{T:.3f}"
+    if isclose(T, T_kauz,rel_tol=1e-6):
+        legend_name = r"$T_k$"
+    if isclose(T,T_dyn,rel_tol=1e-6):
+        legend_name = r"$T_d$"
+
+    return legend_name
+
 
 def multiple_empty_arrays(shape, n):
     return [np.empty(shape) for _ in range(n)]
@@ -31,9 +40,13 @@ def multiple_empty_arrays(shape, n):
 
 def observables(shape):
     return {
+        "f": np.empty(shape),
+        "e": np.empty(shape),
         "delta_f": np.empty(shape),
         "T": np.empty(shape),
         "dAT": np.empty(shape),
+        "He": np.empty(shape),
+        "He2": np.empty(shape),
         "q": np.empty(shape),
         "h": np.empty(shape),
         "s": np.empty(shape),

@@ -34,7 +34,7 @@ def get_Tk_Td(p, model="ising"):
     return T_kauz, T_dyn
 
 
-r, w = np.polynomial.hermite.hermgauss(99)
+r, w = np.polynomial.hermite.hermgauss(299)
 
 roots = np.sqrt(2) * np.array(r)
 weights = np.array(w) / np.sqrt(np.pi)
@@ -132,6 +132,45 @@ def compute_Td_standard(p,blend=0.25,verbose=False):
         else:  T += deltaT
     return T
 
+def compute_m_atTd_standard(p,blend=0.25,verbose=False):
+    T_init = 0.6
+    m_init = 1.
+    q_init = 0.9
+    deltaT = 0.01
+
+    m = m_init
+    q = q_init
+    T = T_init
+
+    #Ts = []
+    #ms = []
+
+    while (deltaT > 1e-9):
+        J0 = 1 / (2 * T)
+        err = 1
+        m_old = m
+        q_old = q
+        while err > 1e-9:
+            m_new = compute_m_standard(m, q, p, 1 / T, J0)
+            q_new = compute_q_standard(m, q, p, 1 / T, J0)
+
+            err = max(abs(q_new - q), abs(m_new - m))
+            m = blend * m + (1 - blend) * m_new
+            q = blend * q + (1 - blend) * q_new
+
+        #Ts.append(T)
+        #ms.append(m)
+
+        if verbose: print(f"T = {T:.9f}, m = {m:.9f}, q = {q:.9f}")
+        if (m < 0.01):
+            m = m_old
+            q = q_old
+            T -= deltaT/2
+            deltaT /= 2
+        else:  
+            T += deltaT
+            m_save = m
+    return m_save
 # def free_energy_1RSB(x, q0, q1, T, J0, p):
 #     integral = np.sum(weights_small * ())
 

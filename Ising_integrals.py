@@ -2,10 +2,10 @@ import numpy as np
 from numba import njit, vectorize
 from root_finding import brent_root_finder
 from scipy.optimize import root_scalar
-from math import log, log1p, exp, atanh
+from math import log, log1p, exp, atanh, sqrt
 
 # gaussian integration
-r, w = np.polynomial.hermite.hermgauss(99)
+r, w = np.polynomial.hermite.hermgauss(199)
 
 roots = np.sqrt(2) * np.array(r)
 weights = np.array(w) / np.sqrt(np.pi)
@@ -47,6 +47,31 @@ def annealed_entropy(m, e, p):
 def deriv_ann_entropy(m, e, p):
     return 2 * e**2 * m**(p-1) * (-1 + m**p) * p + np.arctanh(m)
 
+@njit()
+def int_high_p(betat,p):
+    betatp = betat*log(p)
+    return 1-np.sum(
+        weights
+        * (
+            np.tanh(
+                betatp*roots + betatp**2
+            )
+        )
+    )
+
+def int_first_order(a):
+    return 2*np.exp(-2*a*a)*np.sum(weights*(np.exp(-2*(a*roots))))
+
+@njit()
+def int_high_p2(beta, p):
+    betat = beta*sqrt(0.5*p)
+    return np.sum(
+        weights
+        * ( (1+0.5*roots)/np.cosh(
+                betat*roots + betat**2
+            )**2
+        )
+    )+1/((p-1)*betat)
 
 # ---
 #@njit()
