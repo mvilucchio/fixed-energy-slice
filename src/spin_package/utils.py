@@ -5,6 +5,7 @@ from scipy.optimize import root_scalar
 
 
 def Td_spherical(p):
+    print("AAA")
     return np.exp(
         0.5
         * (np.log(p) + (p - 2) * np.log(p - 2) - (p - 1) * np.log(p - 1) - np.log(2))
