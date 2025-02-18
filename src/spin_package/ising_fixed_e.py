@@ -1,6 +1,5 @@
 import numpy as np
 from numba import njit, vectorize
-from root_finding import brent_root_finder
 from scipy.optimize import root_scalar
 from math import log, log1p, exp, atanh, sqrt
 

@@ -2,10 +2,10 @@ import numpy as np
 from numba import njit
 from math import isclose, sqrt, log
 from scipy.optimize import root_scalar
+from typing import Iterable
 
 
 def Td_spherical(p):
-    print("AAA")
     return np.exp(
         0.5
         * (np.log(p) + (p - 2) * np.log(p - 2) - (p - 1) * np.log(p - 1) - np.log(2))
@@ -13,7 +13,9 @@ def Td_spherical(p):
 
 
 def Tkauz_spherical(p):
-    y = root_scalar(lambda x: 2 / p + 2 * x * (1 - x + np.log(x)) / ((1 - x) ** 2), 1e-9).x[0]
+    y = root_scalar(
+        lambda x: 2 / p + 2 * x * (1 - x + np.log(x)) / ((1 - x) ** 2), 1e-9
+    ).x[0]
     return y * (1 - y) ** (0.5 * p - 1) * np.sqrt(p / (2 * y))
 
 
@@ -63,18 +65,26 @@ def multiple_empty_arrays(shape, n):
     return [np.empty(shape) for _ in range(n)]
 
 
-def observables(shape):
-    return {
-        "f": np.empty(shape),
-        "e": np.empty(shape),
-        "delta_f": np.empty(shape),
-        "T": np.empty(shape),
-        "dAT": np.empty(shape),
-        "He": np.empty(shape),
-        "He2": np.empty(shape),
-        "q": np.empty(shape),
-        "h": np.empty(shape),
-        "s": np.empty(shape),
-        "m_check": np.empty(shape),
-        "e_check": np.empty(shape),
-    }
+def observables(list_names: Iterable[str], shape) -> dict:
+    return {name: np.empty(shape) for name in list_names}
+
+
+def get_data_folder_name(type: str):
+    return "../data/" + type + "/"
+
+
+def get_file_name_T_sweep_m(
+    type: str, p: int, T_planting: float, T: float, m_range: Iterable[float]
+) -> str:
+    return f"{type}_sweep_m_p{p}_T{T:.5f}_Tplanting{T_planting:.5f}_m{m_range[0]:.5f}_{m_range[-1]:.5f}.pkl"
+
+
+def get_file_name_sweep_T(
+    type: str, p: int, T_planting: float, T_range: Iterable[float], m0: float, q0: float
+) -> str:
+    return f"{type}_sweep_T_p{p}_Tplanting{T_planting:.5f}_T{T_range[0]:.5f}_{T_range[-1]:.5f}_m0{m0:.5f}_q0{q0:.5f}.pkl"
+
+def get_file_name_until_fail(
+    type: str, p: int, T_planting: float, T_init:float, deltaT: float, m0: float, q0: float
+) -> str:
+    return f"{type}_until_fail_p{p}_Tplanting{T_planting:.5f}_Tinit{T_init:.5f}_deltaT{deltaT:.5f}_m0{m0:.5f}_q0{q0:.5f}.pkl"

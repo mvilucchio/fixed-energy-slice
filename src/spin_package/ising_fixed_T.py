@@ -1,5 +1,6 @@
 import numpy as np
 from numba import njit
+from scipy.optimize import root_scalar
 
 r, w = np.polynomial.hermite.hermgauss(299)
 
@@ -36,7 +37,7 @@ def compute_free_energy_standard(m: float, q: float, p: int, β: float, J0: floa
                 * np.cosh(
                     β
                     * (
-                        p * (0.5 * β) * m ** (p - 1)
+                        p * J0 * m ** (p - 1)
                         + roots * np.sqrt(p * q ** (p - 1) / 2)
                     )
                 )
@@ -49,7 +50,7 @@ def compute_free_energy_standard(m: float, q: float, p: int, β: float, J0: floa
         + 0.25 * β
         - 0.25 * β * p * q ** (p - 1)
         + integral / β
-    )
+    ) 
 
 
 @njit()
