@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 from math import isclose, sqrt, log
-from scipy.optimize import root_scalar
+from scipy.optimize import root
 from typing import Iterable
 
 
@@ -13,7 +13,7 @@ def Td_spherical(p):
 
 
 def Tkauz_spherical(p):
-    y = root_scalar(
+    y = root(
         lambda x: 2 / p + 2 * x * (1 - x + np.log(x)) / ((1 - x) ** 2), 1e-9
     ).x[0]
     return y * (1 - y) ** (0.5 * p - 1) * np.sqrt(p / (2 * y))
@@ -88,3 +88,8 @@ def get_file_name_until_fail(
     type: str, p: int, T_planting: float, T_init:float, deltaT: float, m0: float, q0: float
 ) -> str:
     return f"{type}_until_fail_p{p}_Tplanting{T_planting:.5f}_Tinit{T_init:.5f}_deltaT{deltaT:.5f}_m0{m0:.5f}_q0{q0:.5f}.pkl"
+
+def get_file_name_Tdplus_Tk(
+    type: str, deltaT: float, m0: float, q0: float, p_init: int, p_end: int, n_p: int
+) -> str:
+    return f"{type}_Tdplus_Tk_deltaT{deltaT:.5f}_m0{m0:.5f}_q0{q0:.5f}_p{p_init}_{p_end}_{n_p}.pkl"
