@@ -39,14 +39,32 @@ def first_moment_H(m):
 
 @vectorize()
 def annealed_entropy(m, e, p):
-    H = -0.5 * (1 + m) * log1p(m) - 0.5 * (1 - m) * log1p(-m) + log(2)
-    return H - e**2 * (1 - m**p) ** 2
+    return first_moment_H(m) - e**2 * (1 - m**p) ** 2
 
 
 @njit()
 def deriv_ann_entropy(m, e, p):
     return 2 * e**2 * m ** (p - 1) * (-1 + m**p) * p + np.arctanh(m)
 
+
+def find_minimum_entropy(e, p, n_points_m):
+    ms = np.linspace(1e-6, 1-1e-6, n_points_m)
+    ders = np.array([deriv_ann_entropy(m, e, p) for m in ms])
+    if deriv_ann_entropy(ms[np.argmin(ders)], e, p) > 0:
+        m_min = 0.
+    else:
+        m_min = root_scalar(deriv_ann_entropy, args=(e, p), bracket=[1/n_points_m, ms[np.argmin(ders)]]).root
+    return annealed_entropy(m_min, e, p)
+
+
+def find_minimum_entropy_m(e, p, n_points_m):
+    ms = np.linspace(1e-6, 1-1e-6, n_points_m)
+    ders = np.array([deriv_ann_entropy(m, e, p) for m in ms])
+    if deriv_ann_entropy(ms[np.argmin(ders)], e, p) > 0:
+        m_min = 0.
+    else:
+        m_min = root_scalar(deriv_ann_entropy, args=(e, p), bracket=[1/n_points_m, ms[np.argmin(ders)]]).root
+    return  m_min
 
 @njit()
 def int_high_p(betat, p):
