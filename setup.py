@@ -9,6 +9,7 @@ setup(
         'numpy>=1.18.0',
         'numba>=0.50.0',
         'scipy>=1.4.1',
+        'tqdm>=4.46.0',
     ],
     python_requires=">=3.7",  # Specify your minimum Python version
 )

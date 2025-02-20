@@ -35,11 +35,7 @@ def compute_free_energy_standard(m: float, q: float, p: int, β: float, J0: floa
             np.log(
                 2
                 * np.cosh(
-                    β
-                    * (
-                        p * J0 * m ** (p - 1)
-                        + roots * np.sqrt(p * q ** (p - 1) / 2)
-                    )
+                    β * (p * J0 * m ** (p - 1) + roots * np.sqrt(p * q ** (p - 1) / 2))
                 )
             )
         )
@@ -50,7 +46,7 @@ def compute_free_energy_standard(m: float, q: float, p: int, β: float, J0: floa
         + 0.25 * β
         - 0.25 * β * p * q ** (p - 1)
         + integral / β
-    ) 
+    )
 
 
 @njit()
@@ -58,7 +54,23 @@ def compute_energy_standard(m, q, p, β, J0):
     return -J0 * m**p - 0.5 * β * (1 - q**p)
 
 
-def compute_Td_standard(p, blend=0.25, verbose=False, deltaT=0.01):
+@njit()
+def fixed_point_standard(
+    m_init: float, q_init: float, p: int, β: float, J0: float, blend=0.25, tol=1e-9
+):
+    err = 1
+    m = m_init
+    q = q_init
+    while err > tol:
+        m_new = compute_m_standard(m, q, p, β, J0)
+        q_new = compute_q_standard(m, q, p, β, J0)
+        err = max(abs(m_new - m), abs(q_new - q))
+        m = blend * m + (1 - blend) * m_new
+        q = blend * q + (1 - blend) * q_new
+    return m, q
+
+
+def compute_Tk(p: int, blend=0.25, verbose=False, deltaT=0.01):
     T_init = 0.6
     m_init = 1.0
     q_init = 1.0
@@ -69,27 +81,41 @@ def compute_Td_standard(p, blend=0.25, verbose=False, deltaT=0.01):
 
     while deltaT > 1e-8:
         J0 = 1 / (2 * T)
-        err = 1
-        m_old = m
-        q_old = q
-        while err > 1e-8:
-            m_new = compute_m_standard(m, q, p, 1 / T, J0)
-            q_new = compute_q_standard(m, q, p, 1 / T, J0)
+        m, q = fixed_point_standard(m, q, p, 1 / T, J0, blend=blend)
 
-            err = max(abs(q_new - q), abs(m_new - m))
-            m = blend * m + (1 - blend) * m_new
-            q = blend * q + (1 - blend) * q_new
+        f_mq = compute_free_energy_standard(m, q, p, 1 / T, J0)
+        f_00 = compute_free_energy_standard(0.0, 0.0, p, 1 / T, J0)
+        if verbose:
+            print(f"T = {T:.9f}, m = {m:.9f}, q = {q:.9f}")
+        if f_mq > f_00:
+            deltaT /= 2
+            T -= deltaT
+        else:
+            T += deltaT
+    return T
 
-        # Ts.append(T)
-        # ms.append(m)
+
+def compute_Td(p: int, blend=0.25, verbose=False, deltaT=0.01, T_init=0.6):
+    # T_init = 0.6
+    m_init = 1.0
+    q_init = 1.0
+
+    m = m_init
+    q = q_init
+    T = T_init
+
+    while deltaT > 1e-8:
+        J0 = 1 / (2 * T)
+        m_old, q_old = m, q
+        m, q = fixed_point_standard(m, q, p, 1 / T, J0, blend=blend)
 
         if verbose:
             print(f"T = {T:.9f}, m = {m:.9f}, q = {q:.9f}")
         if m < 0.01:
             m = m_old
             q = q_old
-            T -= deltaT / 2
             deltaT /= 2
+            T -= deltaT
         else:
             T += deltaT
     return T
@@ -136,6 +162,7 @@ def compute_m_atTd_standard(p, blend=0.25, verbose=False):
 
 # with the field
 
+
 @njit()
 def compute_m_FP_T(m, q, h, p, T, J0):
     return np.sum(
@@ -145,6 +172,7 @@ def compute_m_FP_T(m, q, h, p, T, J0):
             * (p * J0 * m ** (p - 1) + roots * np.sqrt(p * q ** (p - 1) / 2) + h)
         )
     )
+
 
 @njit()
 def compute_q_FP_T(m, q, h, p, T, J0):
@@ -193,7 +221,7 @@ def fixed_points_h_q_T(m, T, p, J0, blend=0.25, tol=1e-9, h_init=-0.1, q_init=0.
 
 @njit()
 def f_FP_T(m, q, h, p, T, J0):
-    beta = 1/T
+    beta = 1 / T
     integral = np.sum(
         weights
         * (
