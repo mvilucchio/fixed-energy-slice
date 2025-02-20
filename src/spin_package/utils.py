@@ -3,6 +3,7 @@ from numba import njit
 from math import isclose, sqrt, log
 from scipy.optimize import root
 from typing import Iterable
+from .ising_fixed_T import compute_Tk, compute_Td
 
 
 def Td_spherical(p):
@@ -21,18 +22,22 @@ def Tkauz_spherical(p):
 
 def get_Tk_Td(p, model="ising"):
     if model == "ising":
-        if p == 3:
-            T_kauz, T_dyn = 0.651385, 0.6815
-        elif p == 4:
-            T_kauz, T_dyn = 0.61688, 0.6784
-        elif p == 5:
-            T_kauz, T_dyn = 0.60695, 0.7001
-        elif p == 10:
-            T_kauz, T_dyn = 0.6005, 0.838
-        elif p == 20:
-            T_kauz, T_dyn = 0.5 / np.sqrt(np.log(2)), 1.0615
+        # if p == 3:
+        #     T_kauz, T_dyn = 0.651385, 0.6815
+        # elif p == 4:
+        #     T_kauz, T_dyn = 0.61688, 0.6784
+        # elif p == 5:
+        #     T_kauz, T_dyn = 0.60695, 0.7001
+        # elif p == 10:
+        #     T_kauz, T_dyn = 0.6005, 0.838
+        # elif p == 20:
+        #     T_kauz, T_dyn = 0.5 / np.sqrt(np.log(2)), 1.0615
+        # else:
+        #     raise ValueError("p must be 3, 4, 5 or 10")
+        if p < 100:
+            return compute_Tk(p), compute_Td(p)
         else:
-            raise ValueError("p must be 3, 4, 5 or 10")
+            return 0.5 / np.sqrt(np.log(2)), compute_Td(p)
     elif model == "spherical":
         return Tkauz_spherical(p), Td_spherical(p)
     else:
