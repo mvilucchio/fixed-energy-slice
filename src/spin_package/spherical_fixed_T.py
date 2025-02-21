@@ -19,15 +19,15 @@ def compute_q_FP_J0(m, q, p, β):
 
 
 @njit()
-def newm(thism, thisq, p, β):
+def newm(m, q, p, β):
     return sqrt(
-        thisq - (1 - thisq) * (1 - thisq) * (0.5 * β**2 * p * pow(thisq, p - 1))
+        q - (1 - q) * (1 - q) * (0.5 * β**2 * p * pow(q, p - 1))
     )
 
 
 @njit()
-def newq(thism, thisq, p, β, J0):
-    return 1 - thism / (β * p * J0 * pow(thism, p - 1))
+def newq(m, q, p, β, J0):
+    return 1 - m / (β * p * J0 * pow(m, p - 1))
 
 
 def fixed_points_q_J0(m, β, p, blend=0.01, tol=1e-9, q_init=0.9):

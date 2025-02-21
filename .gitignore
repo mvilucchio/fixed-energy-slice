@@ -1,13 +1,13 @@
 # Ignore MacOS files
 .DS_Store
 
+# ignore data files
+*.pkl
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
-# imgs
-*.png
 
 # C extensions
 *.so
