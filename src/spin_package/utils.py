@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 from math import isclose, sqrt, log
-from scipy.optimize import root
+from scipy.optimize import root, minimize
 from typing import Iterable
 from .ising_fixed_T import compute_Tk, compute_Td
 
@@ -18,6 +18,13 @@ def Tkauz_spherical(p):
         lambda x: 2 / p + 2 * x * (1 - x + np.log(x)) / ((1 - x) ** 2), 1e-9
     ).x[0]
     return y * (1 - y) ** (0.5 * p - 1) * np.sqrt(p / (2 * y))
+
+
+def Tkauz_spherical2(p):
+    y = minimize(
+        lambda x: np.log(1/(1-x))/x**p - 1/x**(p-1), 1-1/(2*p), bounds=[(1e-9, 1-1e-9)]
+    ).fun
+    return 1 / np.sqrt(y)
 
 
 def get_Tk_Td(p, model="ising"):
@@ -40,8 +47,10 @@ def get_Tk_Td(p, model="ising"):
             return 0.5 / np.sqrt(np.log(2)), compute_Td(p)
     elif model == "spherical":
         return Tkauz_spherical(p), Td_spherical(p)
+    elif model == "spherical2":
+        return Tkauz_spherical2(p), np.sqrt(2)*Td_spherical(p)
     else:
-        raise ValueError("model must be 'ising' or 'spherical'")
+        raise ValueError("model must be 'ising' or 'spherical' or 'spherical2'")
 
     return T_kauz, T_dyn
 
