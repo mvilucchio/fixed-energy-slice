@@ -10,7 +10,7 @@ def e_J0(q, m, p, β, J0):
     A = log(J0) + p * log(m)
     B = log(0.5) + log(β) + log1p(-(q**p))
     M = max(A, B)
-    return exp(M) * (exp(A - M) - exp(B - M))
+    return -exp(M) * (exp(A - M) + exp(B - M))
 
 
 @njit()
