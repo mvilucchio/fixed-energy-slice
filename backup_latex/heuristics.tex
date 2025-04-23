@@ -1,0 +1,173 @@
+\documentclass[superscriptaddress,amsmath, amssymb, onecolumn, pra]{revtex4-2} 
+
+\usepackage[bookmarks=false,linkcolor=red,urlcolor=blue,colorlinks=true,citecolor=blue]{hyperref}
+
+\pdfoutput=1 % for arXiv
+
+\usepackage{wrapfig}
+\usepackage{graphicx}  % needed for figures
+\usepackage{dcolumn}   % needed for some tables
+\usepackage{bm}        % for math
+\usepackage{amssymb}   % for math
+\usepackage{physics}
+
+\usepackage{comment}
+\usepackage{fdsymbol}
+\usepackage{xcolor}
+\usepackage[english]{babel}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{amsfonts}
+\usepackage{amsopn}
+\usepackage{float}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{dcolumn}
+\usepackage{bm}
+\usepackage{color}
+\hyphenation{itself}
+\usepackage{float}
+\usepackage{lipsum}
+\usepackage[normalem]{ulem}
+\usepackage[capitalize]{cleveref}
+\usepackage{silence}
+\WarningFilter{revtex4-2}{Repair the float}
+\WarningFilter{revtex4-2}{No Society}
+\usepackage{mathtools}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\input{additional-math}
+
+\begin{document}
+
+\tableofcontents
+
+\section{Fixed Temperature Spherical $p$-spin}
+We consider the Spherical version of the $p$-spin model, characterized by the following Hamiltonian:
+\begin{equation}\label{eq:H_pspin_spherical}
+    \mathcal{H}_J(\vect{s}) = -\sum_{i_1<\dots<i_p}J_{i_1\dots i_p}s_{i_1}\dots s_{i_p}\,,\quad \vect{s}\in S_N
+\end{equation}
+where $J_{i_1\dots i_p}$ is a random Gaussian tensor where each entrance is i.i.d. with mean $\mathbb{E}[J_{i_1\dots i_p}]=\frac{J_0 p!}{N^{p-1}}$ and variance $\mathbb{E}[J^2_{i_1\dots i_p}] - \left(\mathbb{E}[J_{i_1\dots i_p}]\right)^2=\frac{p!}{N^{p-1}}$.
+This variance makes the model the same as the one considered in \cite{alaoui_shattering_2024}.
+
+We denote the Gibbs measure $\mu_{\beta}(\vect{s}) = \frac{1}{Z_{\beta}}\exp(-\beta\mathcal{H}_J(\vect{s})) $, with $Z_{\beta}$ the normalization constant.
+
+We use the following definitions for $\beta_d$ and $\beta_K$:
+\begin{equation}
+    \beta_d(p) = \sqrt{\frac{(p-1)^{p-1}}{p (p-2)^{p-2}}}\,,\quad 
+    \beta_K(p)^2 = \inf_{q \in [0,1]} \qty(\frac{1}{q^p} \log\qty(\frac{1}{1-q}) - \frac{1}{q^{p-1}}) \,,
+\end{equation}
+which for large values of $p$ scale as
+\begin{equation}\label{eq:betad-betac-defs}
+    \beta_d(p) = \sqrt{e} + O(p^{-1}) \,, \quad \beta_K(p) = \sqrt{\log p} \qty(1 + o_p(1)) \,.
+\end{equation}
+
+Our primary objective is to determine $\beta_d^+$, defined as the highest value of $\beta$ for which the system exhibits fast mixing from the worst case initial condition.
+\subsection{Computation of $T_d^+$ from following states (RS)}
+The RS Franz-Parisi potential can be shown to be
+\begin{equation}\label{eq:FP_RS_spherical}
+    -2\beta F_\beta(m,q) = 1 + \log 2\pi + \beta^2(1-q^p) + \log(1-q) + \frac{q-m^2}{1-q} + 2\beta J_0 m^p\,.
+\end{equation}
+where $J_0 = \beta' $, with $\beta'$ the inverse temperature of the planted solution, $m$ is the overlap with the planted solution and $q$ is the replica overlap.
+
+\subsubsection{Finite $p$}
+We first use the state following formalism from \citep{krzakala_2010,sun_2012} to get an estimate of the $T_d^+$ for the spherical case at a finite value of $p$.
+We consider the planted version of the model, with the planting temperature fixed at the Kauzmann temperature $T_K$, so that we have contiguity to the random version of the model.
+We start by running the fixed point equations at temperature $T = T_K$ to find the local minima with $m > 0$.
+Then, we increase the temperature and follow the minimum until it vanishes, and we call $T_d^+$ the temperature value at which this happens.
+For finite values of p (for $p > 10^4$, the numerical routines start to become unstable), we can look at the scaling of $T_d^+$ with p and it turns out to be consistent with the one found in the previous section, as we will show in the plots in the next section.
+%In Figure \ref{fig:spherical_Tdplus_Td_Tk} we plot these values, along with the values of $T_d$ and $T_K$.
+
+\subsubsection{Large $p$ limit}
+We can rewrite the fixed-point equations of \eqref{eq:FP_RS_spherical} as following
+\begin{equation}
+\begin{cases}
+    1-q = \frac{m^{2-p}}{\beta p J_0}\,, \\
+    (1-q)^2 = \frac{(q-m^2)q^{1-p}}{p\beta^2}\,.
+\end{cases}
+\end{equation}
+In the large $p$ limit the Kauzmann transition is at $\beta_K \sim \sqrt{\log p}$ \footnote{We use the symbol $\sim$ to indicate that two expressions are of the same order in $p$.}\cite{kurchan1993barriers} and, following the numerical results, we consider $\beta = \frac{C_+}{\sqrt{\log p}}$, with $C_+$ is a constant to be determined.
+
+Then from the first fixed point we get $1-q \sim (pm^p)^{-1}$. Numerically, one can verify that $m^p$ converges for $p$ large to a positive constant, such that we can say $q = 1 - \frac{\alpha_q}{p} + o(\frac{1}{p})$, and thus $q^p\to e^{-\alpha_q}$.
+
+Putting this scaling in the second fixed point, we get
+\begin{equation}
+    \frac{\alpha_q}{p} \sim \sqrt{\frac{\log p}{p}(q-m^2)}\,,
+\end{equation}
+which in turn implies $q-m^2 = \frac{\gamma}{p\log p}$. By a simple argument, one can see that this means $m = 1 - \frac{\alpha_m}{p}= 1 - \frac{\alpha_q}{2p} + o(\frac{1}{p})$ and thus that $m^p\to e^{-\alpha_q/2}$.
+
+Directly by imposing these scaling back into \eqref{eq:FP_RS_spherical} one finds the following relationships between the constants:
+\begin{equation}
+    \begin{cases}
+        \frac{C_+}{2}\alpha_q = e^{\frac{\alpha_q}{2}}\,, \\
+        C_+^2\alpha_q^2 = 4\gamma e^{\alpha_q}\,.
+    \end{cases}
+\end{equation}
+Using the first equation to specify $C_+$ in terms of $\alpha_q$ and substituting in the second equation we find $\gamma = 1/2$ and we are left with one equation in two variables.
+
+We derive the last equation by looking at the Hessian of the free energy $F_{\beta}(m,q)$. Indeed we expect that $T_d^+$ is the temperature at which the local minima disappears, and thus it is also where the smaller eigenvalue of the Hessian becomes zero. 
+The eigenvalues can be computed and the smaller one is given by
+
+\begin{equation}
+    \begin{cases}
+        \lambda_{\rm min} = -\frac{1}{4 \beta  m^2 (q-1)^3 q^2}\left(A - \sqrt{A^2 + B}\right)\,, \\
+        \begin{aligned}
+        A = 2 \beta  J_0 (p-1) p (q-1)^3 q^2 m^p+2 m^4 q^2 -m^2 \left(\beta ^2 (p-1) p (q-1)^3 q^p- q^2 (q (2 q-5)+1)\right) \,, 
+        \end{aligned}\\
+        \begin{aligned}
+        B = 8&m^2 (q-1)^2 q^2 \Bigg(\beta  J_0 (p-1) p (q-1) m^p \left( q^2 \left(-2 m^2+q+1\right)+\beta ^2 (p-1) p (q-1)^3
+   q^p\right)\\ &+m^2 \left(\beta ^2 (p-1) p (q-1)^3 q^p+ (q+1) q^2\right)\Bigg)\,.
+        \end{aligned}
+    \end{cases}
+\end{equation}
+One can check that $B = o(A)$ and thus it is easy to convince ourselves that $B = 0 \Rightarrow\lambda_{\min} = 0$. At the first order in $B$, this is equivalent to asking 
+\begin{equation}
+    m^2q^2(1+q) + m^pp^2(q-1)q^2\beta J_0(1-2m^2 + q) = 0 \,.
+\end{equation}
+After some trivial computations, one arrives to the following formula:
+\begin{equation}
+    C_+\alpha_q^2 = 2e^{\frac{\alpha_q}{2}} \,,
+\end{equation}
+which combined with the one coming from the fixed point equations leads to $\alpha_q = 2$, and thus $\alpha_m=1$ and $C_+ = \frac{e}{2}$.
+
+We verify these scalings numerically; in Fig. \ref{fig:spherical2_Tdplus_Td_Tk_log} for $T_d^+$ and in Fig. \ref{fig:spherical2_m_q} for $m$ and $q$.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{Figures/spherical2_Tdplus_TkTd_log.png}
+    \caption{Numerical estimation of $T_d^+$ from state following, superimposed with the asymptotic scalings.}
+    \label{fig:spherical2_Tdplus_Td_Tk_log}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{Figures/spherical2_m_q.png}
+    \caption{Check of the asymptotic scalings of $m$ and $q$.}
+    \label{fig:spherical2_m_q}
+\end{figure}
+\section{Fixed Temperature Ising $p$-spin}
+We come back to the Ising version of the $p$-spin model, characterized by the Hamiltonian 
+\begin{equation}\label{eq:H_pspin_spherical}
+    \mathcal{H}_J(\vect{s}) = -\sum_{i_1<\dots<i_p}J_{i_1\dots i_p}s_{i_1}\dots s_{i_p}\,,\quad s_i\in \{-1,1\}\;\forall\,i\in[1:N]
+\end{equation}
+where $J_{i_1\dots i_p}$ is a random Gaussian tensor where each entrance is i.i.d. with mean $\mathbb{E}[J_{i_1\dots i_p}]=\frac{J_0 p!}{N^{p-1}}$ and variance $\mathbb{E}[J^2_{i_1\dots i_p}] - \left(\mathbb{E}[J_{i_1\dots i_p}]\right)^2=\frac{p!}{N^{p-1}}$.
+This variance makes the model the same as the one considered in \cite{alaoui_shattering_2024}.
+
+We denote the Gibbs measure $\mu_{\beta}(\vect{s}) = \frac{1}{Z_{\beta}}\exp(-\beta\mathcal{H}_J(\vect{s})) $, with $Z_{\beta}$ the normalization constant.
+The RS Franz-Parisi potential can be computed through the cavity method \cite{krzakala_2010} and turns out to be {\color{red} To Add}.
+\subsection{Computation of $T_d^+$ from following states}
+\subsubsection{Finite $p$}
+In this section, we use again the state following formalism from {\color{red} Add ref} to get an estimate of the $T_d^+$ for the Ising case, in the same we did for the spherical version.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{Figures/ising_Tdplus_TkTd_log.png}
+    \caption{Numerical estimation of $T_d^+$ from state following for the Ising p-spin model.}
+    \label{fig:ising_Tdplus_Td_Tk}
+\end{figure}
+In Figure \ref{fig:ising_Tdplus_Td_Tk} we plot the estimated values of $T_d^+$, along with the values of $T_d$ and $T_K$.
+
+\appendix
+
+
+ \bibliographystyle{alpha} % We choose the "plain" reference style
+ \bibliography{fixed-energy}
+
+\end{document}

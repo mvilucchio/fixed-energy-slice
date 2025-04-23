@@ -1,0 +1,376 @@
+\documentclass[]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\hypersetup{
+    colorlinks = true,
+    citecolor = blue,
+    linkcolor = red
+}
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=0.75em}
+
+\usepackage{color}
+\usepackage{float}
+\usepackage[style=base]{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{pgfplots}
+\usepackage{abstract}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+
+\usepackage{amsmath,amssymb,amsthm,mathtools,bbm}
+\usepackage{physics}
+\usepackage{bbold}
+\usepackage{dsfont}
+\usepackage{mathrsfs}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage[capitalize]{cleveref}
+\usepackage{xfrac}
+\usepackage{graphicx}
+\usepackage{authblk}
+\usepackage{natbib}
+\usepackage{stmaryrd}
+
+\graphicspath{{Figures/}}
+
+\usepackage{times}
+\usepackage{comment}
+
+\usepackage{enumitem}
+\setlist[enumerate]{leftmargin=1.5em}
+\setlist[itemize]{leftmargin=1.5em}
+\usepackage{autonum}
+
+\makeatletter
+\renewenvironment{proof}[1][]
+{%
+  \par\noindent{\bfseries\upshape 
+    \proofname\if\relax\detokenize{#1}\relax\else\ of #1\fi:\space}%
+}
+{\qedsymbol}
+\makeatother
+
+\input{additional-math.tex}
+
+\newcommand{\defeq}{\mathrel{\mathop:}=}
+
+% % % % END CUSTOM SETTINGS % % % % % % 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}%
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}%
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{remark}%
+\newtheorem{remark}{Remark}
+
+\crefname{assumption}{Assumption}{Assumptions}
+
+\renewcommand\Authfont{\fontsize{11}{14.4}\selectfont}
+\renewcommand\Affilfont{\fontsize{10}{10.8}\itshape}
+
+\begin{document}
+
+\title{}
+
+\section{Fixed Temperature Spherical $p$-spin}
+We consider the Spherical version of the $p$-spin model, characterized by the following Hamiltonian:
+\begin{equation}\label{eq:H_pspin_spherical}
+    \mathcal{H}_J(\vect{s}) = -\sum_{i_1<\dots<i_p}J_{i_1\dots i_p}s_{i_1}\dots s_{i_p}\,,\quad \vect{s}\in S_N
+\end{equation}
+where $J_{i_1\dots i_p}$ is a random Gaussian tensor where each entrance is i.i.d. with mean $\mathbb{E}[J_{i_1\dots i_p}]=\frac{J_0 p!}{N^{p-1}}$ and variance $\mathbb{E}[J^2_{i_1\dots i_p}] - \left(\mathbb{E}[J_{i_1\dots i_p}]\right)^2=\frac{p!}{N^{p-1}}$.
+This variance makes the model the same as the one considered in \cite{alaoui_shattering_2024}.
+
+We denote the Gibbs measure $\mu_{\beta}(\vect{s}) = \frac{1}{Z_{\beta}}\exp(-\beta\mathcal{H}_J(\vect{s})) $, with $Z_{\beta}$ the normalization constant.
+
+We use the following definitions for $\beta_d$ and $\beta_K$:
+\begin{equation}
+    \beta_d(p) = \sqrt{\frac{(p-1)^{p-1}}{p (p-2)^{p-2}}}\,,\quad 
+    \beta_K(p)^2 = \inf_{q \in [0,1]} \qty(\frac{1}{q^p} \log\qty(\frac{1}{1-q}) - \frac{1}{q^{p-1}}) \,,
+\end{equation}
+which for large values of $p$ scale as
+\begin{equation}\label{eq:betad-betac-defs}
+    \beta_d(p) = \sqrt{e} + O(p^{-1}) \,, \quad \beta_K(p) = \sqrt{\log p} \qty(1 + o_p(1)) \,.
+\end{equation}
+
+Our primary objective is to determine $\beta_d^+$, defined as the highest value of $\beta$ for which the system exhibits fast mixing from the worst case initial condition.
+
+\subsection{Bound on $\beta_d^+$ from the monotonicity of the Franz-Parisi potential}
+
+To establish a lower bound on $\beta_d^+$, we follow the proof technique developed in \cite{alaoui_shattering_2024}, applying it to the two temperature Franz Parisi potential. Given an equilibrium configuration from $\vect{s} \sim \mu_{\beta^\prime}$, the two temperature Franz Parisi potential is defined as
+\begin{equation}\label{eq:FP-twotemp}
+    \mathcal{F}_{\beta,\beta^\prime}(q) :=
+    \lim _{\varepsilon \downarrow 0} \operatorname{p-lim}\limits_{N \to \infty} 
+    \log 
+    \int e^{-\beta H_N\left(\boldsymbol{\vect{s}}^{\prime}\right)} 1_{\left(\vect{s}, \vect{s}^{\prime}\right) \in \mathcal{S}_N(q, \varepsilon)} \mathrm{d} 
+    \mu_0\left(\boldsymbol{\vect{s}}^{\prime}\right) \,,
+\end{equation}
+
+In order to have contiguity, we consider the case in which we plant at $\beta^\prime \leq \beta_K$. Using \cite[Proposition 3.8]{alaoui_shattering_2024} with 
+\begin{equation}
+    \vect{G} = \frac{\beta'}{N^{\frac{p-1}{2}}}\vect{s}^{\otimes p} + \vect{W}\,,
+\end{equation}
+the Franz-Parisi potential in \cref{eq:FP-twotemp} can be written as
+\begin{equation}
+    \mathcal{F}_{\beta,\beta'}(q) = F_{\beta}(\xi_q) + \beta\beta'q^p + \frac{1}{2}\log(1-q^2)\,,
+\end{equation}
+with $F_{\beta}(\xi_q) $ the quenched free entropy of the mixed model with covariance $\xi_q$ defined as
+\begin{equation}\label{eq:xi_q}
+    \xi_q(x) = \left(q^2+\left(1-q^2\right) x\right)^p-q^{2 p} \,.
+\end{equation}
+
+By following a similar argument as in \cite[Proposition 3.6]{alaoui_shattering_2024} we can prove the following Lemma.
+
+\begin{lemma}\label{lemm:lowerbound-derivative}
+There exists a strictly positive constant $C$ such that for $q\in[1-\frac{1}{p},1)$, the following inequality holds
+\begin{equation}\label{eq:Fder}
+    \dv{\mathcal{F}_{\beta,\beta'}}{q} \geq -\frac{(C\beta + 1)q}{1-q^2} + \beta\beta'pq^{p-1} \,.
+\end{equation}
+\end{lemma}
+
+\begin{remark}
+Compared to \cite{alaoui_shattering_2024}, we had to improve the range of validity to $q > 1-\frac{1}{p}$, and we show how to get this improvement in the next subsection.
+\end{remark}
+
+
+% \begin{lemma}\label{lem:beta-d-plus}
+% For all $\varepsilon > 0$ and all $\beta^\prime \leq \beta_K$ there exists $p_0 \in \mathbb{N}$ such that for all $p \geq p_0$ we have
+% \begin{equation}
+%     \abs{\beta_d^+ - \frac{e}{2 \beta^\prime} } < \varepsilon \,.
+% \end{equation}
+% \end{lemma}
+
+\begin{lemma}\label{lem:beta-d-plus}
+Take $\beta'\leq\beta_K$ and $\beta = o_p(1)$. Then, for all $\delta > 0$ 
+there exists $p_0(\delta) \in \mathbb{N}$ and $\alpha^\star(\delta) < 1$ such that for all $p \geq p_0(\delta)$ and all $q \in [1-\frac{1}{p}, 1- \frac{\alpha^\star(\delta)}{p}]$, if $\beta\beta' > \frac{e}{2} + \delta$ we have that 
+\begin{equation}
+    \frac{ \dd }{ \dd q} \mathcal{F}_{\beta,\beta'} (q) > 0 \,.
+\end{equation}
+\end{lemma}
+
+\begin{remark}
+If we take $\beta' = \beta_K$, the smallest value of $\beta$ for which the lemma holds is $\frac{e}2{(\log p)^{-\frac{1}{2}}}$, which coincides with the value of $\beta_d^+$ one gets from using a Replica Symmetric ansatz for the Franz-Parisi potential. We detail such derivation in the next section.
+\end{remark}
+
+\begin{proof}[\Cref{lemm:lowerbound-derivative}]
+We begin by analyzing the series coefficients $\xi_{q,k}$ of $\xi_q(x)$ as defined in \cref{eq:xi_q}. These coefficients are given by
+\begin{equation}\label{eq:xi_q_k}
+    \xi_{q,k} = \begin{cases}
+        \binom{p}{k} \qty(1 - q^2)^k q^{2 (p-k)} & \text{ for } k \in \llbracket 1,p \rrbracket \\ 
+        0 & \text{ for } k = 0
+    \end{cases} \,.
+\end{equation}
+
+% In \cite{alaoui_shattering_2024}, it is used the fact that for $q \in [1 - \frac{1}{2p},1)$ one can show that $\xi_{q,k}\leq 1/k!$ and this allows to show that the derivative of the free energy is upper bounded by a universal constant. This argument is not directly generalizable if one takes $q<1 - \frac{1}{2p}$, and one has to compute a different bound. 
+
+Let's start by considering the $q$ for which $\xi_{q,k}$ is maximized. Specifically
+\begin{equation}
+    q^{\mathrm{max}}_{k} := \argmax\limits_{q \in [1-\frac{1}{p}, 1)} \xi_{q,k} =
+    \begin{cases}
+        \sqrt{1-\frac{1}{p}} & \text{ for } k = 1 \\
+        1 - \frac{1}{p} & \text{ for } k > 1
+    \end{cases}
+\end{equation}
+for $p \in \mathbb{N}$ and $p \geq 2$.
+
+By substituting $q^{\mathrm{max}}_{k}$ into the formula \cref{eq:xi_q_k}, for $k>1$ we get 
+\begin{equation}
+    \xi^*(j) := p^{-2 p} (p-1)^{2 p-2 j} (2 p-1)^j \binom{p}{j} < p^{-2 p} p^{2 p-2 j} (2p)^j \binom{p}{j}\,,
+\end{equation}
+% and using the fact that $\binom{p}{j} \leq p^j/j!$ we get
+% \begin{equation}
+%     \xi^*(j) < \frac{2^j}{j!}\,.
+% \end{equation}
+We can further bound this expression as follows:
+\begin{align}
+    \xi^*(k) &< p^{-2p}p^{2p-2k}(2p)^k \frac{p^k}{k!} = p^{-2p}p^{2p-k}2^k \frac{p^k}{k!} = \frac{2^k}{k!}.
+\end{align}
+In the inequality, we used the bound $\binom{p}{k} \leq \frac{p^k}{k!}$.
+
+Using the proof technique of \cite[Proposition 3.6]{alaoui_shattering_2024} we need to check that 
+\begin{equation}
+    \sum_{j=1}^p \sqrt{\xi_{q,j}} \sqrt{ \log(j)}
+\end{equation}
+is finite for any value of $p$. This is the case for example if we can show that $\xi^*(j) < \frac{1}{j^2}$ for all $j$ large enough.
+
+Thus, by calling $A(j) = \frac{2^j j^2}{j!}$ we have
+\begin{equation}
+    \xi^*(j) < \frac{A(j)}{j^2}\,,
+\end{equation}
+and since $A(j) < 1\;,\,\forall j>7$ we get 
+\begin{equation}
+    \xi^*(j) < \frac{1}{j^2}\;,\,\forall j>7\,.
+\end{equation}
+
+This bound, combined with the analysis from \cite[Proposition 3.6]{alaoui_shattering_2024}, establishes the desired lower bound on the derivative of the Franz-Parisi potential as stated in equation \cref{eq:Fder}.
+\end{proof}
+
+\begin{proof}[\Cref{lem:beta-d-plus}]
+%We look at the first derivative of $\mathcal{F}_{\beta,\beta^\prime}(q)$, and we want to characterize the minimum value of $\beta$ for which there exists a range in $q$ the derivative is positive. 
+%Indeed, this condition is enough to establish the non-monotonicity of the Franz-Parisi potential.
+We start from the results of \Cref{lemm:lowerbound-derivative} and we parametrize $q = 1 - \frac{\alpha}{p}$ with $\alpha \in (0,1]$.% and $\beta = \tilde{\beta}(\log p)^{-\frac{1}{2}}$ with $\tilde{\beta}$ a positive constant.
+
+Then the RHS of \cref{eq:Fder} then becomes
+\begin{equation}
+    \beta\beta' p \left(1-\frac{\alpha }{p}\right)^{p-1} -
+    \frac{p \left(1-\frac{\alpha }{p}\right) \left(\beta C+1\right)}{2 \alpha} \qty( 1 + \frac{\alpha}{2 p} + \frac{\alpha^2}{4 p^2} + o_p(p^{-2}) ) \,.
+\end{equation}
+
+Keeping only the first order, if we assume $\beta = o_p(1)$ this becomes
+\begin{equation}
+    -\frac{p}{2 \alpha} + e^{-\alpha}\beta\beta' p + o_p(p)
+\end{equation}
+
+If we now choose $\beta$ such that $\beta\beta' = \frac{e}{2} + \delta$, we can study the function $h_{\delta} : \alpha \mapsto -\frac{1}{2 \alpha} + \frac{e^{1-\alpha}}{2} + \delta e^{-\alpha}$.
+
+Putting this equation to zero gives only one solution in $\alpha \in (0,1]$. We call this solution $\alpha^\star$ and we have that 
+\begin{equation}
+    \alpha^\star(\delta) = -W_0\qty(-\frac{1}{e+ 2 \delta})
+\end{equation}
+where $W_0$ is the principal solution Lambert function.
+
+Consequently, for any $\alpha \in [\alpha^*(\delta), 1]$, there exists a sufficiently large $p_0$ such that for all $p > p_0$, we have:
+\begin{equation}
+    \frac{d\mathcal{F}_{\beta,\beta'}}{dq}(q) > 0,
+\end{equation}
+which completes the proof.
+\end{proof}
+
+% We require the right-hand-side of \cref{eq:Fder} to be positive. For $\beta$ this means that
+% \begin{equation}\label{eq:beta-lower}
+%     \beta \geq \frac{1}{- C + (1-q^2)p\beta^\prime q^{p-2}} \geq \frac{1}{(1-q^2)p \beta^\prime q^{p-2}} \,,
+% \end{equation}
+% where we used the fact that $C$ is strictly positive.
+
+% For any fixed $\beta^\prime$ the previous function is strictly positive for $q\in[1-\frac{1}{p},1)$ for any value of $p$. 
+% % Then the value of $q^*$ which maximizes the denominator corresponds to the minimum value $\beta(q^*)$ for which the non-monotonicity condition is satisfied.
+% We parametrize $q(\alpha)=1-\frac{\alpha}{p}$, where then $\alpha\in(0,1]$ to get
+% \begin{equation}
+%     \beta \geq \frac{1}{\alpha(2-\frac{\alpha}{p})\beta^\prime(1-\frac{\alpha}{p})^{p-2}} \geq \frac{1}{2\alpha \beta^\prime (1-\frac{\alpha}{p})^{p-2}} \,,
+% \end{equation}
+% where the last inequality follows because $\alpha \in (0,1]$.
+% The sequence $a_n = \alpha^{-1}\qty(1-\frac{\alpha}{n})^{-n+2}$ is a monotonically increasing bounded above by $e^{\alpha}/\alpha$ and thus converges to this value. 
+% By the diefinition of the limilt $\forall \varepsilon > 0$ $\exists p_0$ such that for $p \geq p_0$
+% \begin{equation}
+%     2 \beta \beta^\prime \geq a_p \geq \frac{e^{\alpha}}{\alpha} - \varepsilon \geq e -\varepsilon \,,
+% \end{equation}
+% where it follows because $\sfrac{e^{\alpha}}{\alpha} \geq e$.
+
+
+
+% \begin{equation}
+%     2 \sqrt{\log p} \beta(\alpha) > \frac{e^\alpha}{\alpha} - \epsilon 
+% \end{equation}
+% Then we can choose $\epsilon$ such that for every $\alpha$
+% \begin{equation} 
+%     \beta(\alpha) \geq \frac{e}{2 \sqrt{\log p}}
+% \end{equation}
+% thus proving that in the large p limit we have the same expression as the RS prediction found in the following section.
+
+\newpage
+\subsection{Computation of $T_d^+$ from following states (RS)}
+The RS Franz-Parisi potential can be shown to be
+\begin{equation}\label{eq:FP_RS_spherical}
+    -2\beta F_\beta(m,q) = 1 + \log 2\pi + \beta^2(1-q^p) + \log(1-q) + \frac{q-m^2}{1-q} + 2\beta J_0 m^p\,.
+\end{equation}
+where $J_0 = \beta' $, with $\beta'$ the inverse temperature of the planted solution, $m$ is the overlap with the planted solution and $q$ is the replica overlap.
+
+\subsubsection{Finite $p$}
+We first use the state following formalism from \citep{krzakala_2010,sun_2012} to get an estimate of the $T_d^+$ for the spherical case at a finite value of $p$.
+We consider the planted version of the model, with the planting temperature fixed at the Kauzmann temperature $T_K$, so that we have contiguity to the random version of the model.
+We start by running the fixed point equations at temperature $T = T_K$ to find the local minima with $m > 0$.
+Then, we increase the temperature and follow the minimum until it vanishes, and we call $T_d^+$ the temperature value at which this happens.
+For finite values of p (for $p > 10^4$, the numerical routines start to become unstable), we can look at the scaling of $T_d^+$ with p and it turns out to be consistent with the one found in the previous section, as we will show in the plots in the next section.
+%In Figure \ref{fig:spherical_Tdplus_Td_Tk} we plot these values, along with the values of $T_d$ and $T_K$.
+
+\subsubsection{Large $p$ limit}
+We can rewrite the fixed-point equations of \eqref{eq:FP_RS_spherical} as following
+\begin{equation}\label{eq:fixedpoints}
+\begin{cases}
+    1-q = \frac{m^{2-p}}{\beta p J_0}\,, \\
+    (1-q)^2 = \frac{(q-m^2)q^{1-p}}{p\beta^2}\,.
+\end{cases}
+\end{equation}
+In the large $p$ limit the Kauzmann transition is at $\beta_K \sim \sqrt{\log p}$ \footnote{We use the symbol $\sim$ to indicate that two expressions are of the same order in $p$.}\cite{kurchan1993barriers} and, following the numerical results, we consider $\beta = \frac{C_+}{\sqrt{\log p}}$, with $C_+$ is a constant to be determined.
+
+Then from the first fixed point we get $1-q \sim (pm^p)^{-1}$. Numerically, one can verify that $m^p$ converges for $p$ large to a positive constant, such that we can say $q = 1 - \frac{\alpha_q}{p} + o(\frac{1}{p})$, and thus $q^p\to e^{-\alpha_q}$.
+
+Putting this scaling in the second fixed point, we get
+\begin{equation}
+    \frac{\alpha_q}{p} \sim \sqrt{\frac{\log p}{p}(q-m^2)}\,,
+\end{equation}
+which in turn implies $q-m^2 = \frac{\gamma}{p\log p}$. By a simple argument, one can see that this means $m = 1 - \frac{\alpha_m}{p}= 1 - \frac{\alpha_q}{2p} + o(\frac{1}{p})$ and thus that $m^p\to e^{-\alpha_q/2}$.
+
+Directly by imposing these scaling back into \eqref{eq:fixedpoints} one finds the following relationships between the constants:
+\begin{equation}\label{eq:Cplusalpha}
+    \begin{cases}
+        C_+\alpha_q = e^{\frac{\alpha_q}{2}}\,, \\
+        C_+^2\alpha_q^2 = \gamma e^{\alpha_q}\,.
+    \end{cases}
+\end{equation}
+Using the first equation to specify $C_+$ in terms of $\alpha_q$ and substituting in the second equation we find $\gamma = 1$ and we are left with one equation in two variables.
+
+We derive the last equation by looking at the Hessian of the free energy $F_{\beta}(m,q)$. Indeed we expect that $T_d^+$ is the temperature at which the local minima disappears, and thus it is also where the smaller eigenvalue of the Hessian becomes zero. 
+The eigenvalues can be computed and the smaller one is given by
+
+\begin{equation}
+    \begin{cases}
+        \lambda_{\rm min} = -\frac{1}{4 \beta  m^2 (q-1)^3 q^2}\left(A - \sqrt{A^2 + B}\right)\,, \\
+        \begin{aligned}
+        A = 2 \beta  J_0 (p-1) p (q-1)^3 q^2 m^p+2 m^4 q^2 -m^2 \left(\beta ^2 (p-1) p (q-1)^3 q^p- q^2 (q (2 q-5)+1)\right) \,, 
+        \end{aligned}\\
+        \begin{aligned}
+        B = 8&m^2 (q-1)^2 q^2 \Bigg(\beta  J_0 (p-1) p (q-1) m^p \left( q^2 \left(-2 m^2+q+1\right)+\beta ^2 (p-1) p (q-1)^3
+   q^p\right)\\ &+m^2 \left(\beta ^2 (p-1) p (q-1)^3 q^p+ (q+1) q^2\right)\Bigg)\,.
+        \end{aligned}
+    \end{cases}
+\end{equation}
+One can check that $B = o(A)$ and thus it is easy to convince ourselves that $B = 0 \Rightarrow\lambda_{\min} = 0$. At the first order in $B$, this is equivalent to asking 
+\begin{equation}
+    m^2q^2(1+q) + m^pp^2(q-1)q^2\beta J_0(1-2m^2 + q) = 0 \,.
+\end{equation}
+After some trivial computations, one arrives to the following formula:
+\begin{equation}
+    C_+\alpha_q^2 = 2e^{\frac{\alpha_q}{2}} \,,
+\end{equation}
+which combined with the one coming from the fixed point equations leads to $\alpha_q = 2$, and thus $\alpha_m=1$ and $C_+ = \frac{e}{2}$.
+
+We verify these scalings numerically; in Fig. \ref{fig:spherical2_Tdplus_Td_Tk_log} for $T_d^+$ and in Fig. \ref{fig:spherical2_m_q} for $m$ and $q$.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{Figures/spherical2_Tdplus_TkTd_log.png}
+    \caption{Numerical estimation of $T_d^+$ from state following, superimposed with the asymptotic scalings.}
+    \label{fig:spherical2_Tdplus_Td_Tk_log}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{Figures/spherical2_m_q.png}
+    \caption{Check of the asymptotic scalings of $m$ and $q$.}
+    \label{fig:spherical2_m_q}
+\end{figure}
+
+Note: Another way to find this scalings is to look at
+\eqref{eq:Cplusalpha} and see what is the smallest $C_+$ for which there is a solution. 
+
+ \bibliographystyle{alpha} % We choose the "plain" reference style
+ \bibliography{refs}
+
+\end{document}
