@@ -107,3 +107,14 @@ def get_file_name_Tdplus_Tk(
     type: str, deltaT: float, m0: float, q0: float, p_init: int, p_end: int, n_p: int
 ) -> str:
     return f"{type}_Tdplus_Tk_deltaT{deltaT:.5f}_m0{m0:.5f}_q0{q0:.5f}_p{p_init}_{p_end}_{n_p}.pkl"
+
+def plot_dashed_instable(ax, xs, ys, stable_idxs, color="black", legend_name=""):
+    if np.all(stable_idxs):
+        ax.plot(xs, ys[:], "-", label=legend_name, color=color)
+    else:
+        i_start, i_end = np.where(np.diff(np.r_[True, stable_idxs, True]) == True)[0]
+
+        ax.plot(xs[:i_start], ys[:i_start], "-", label=legend_name, color=color)
+        ax.plot(xs[i_end:], ys[i_end:], "-", color=color)
+
+        ax.plot(xs[i_start:i_end], ys[i_start:i_end], "--", color=color, alpha=0.75)
