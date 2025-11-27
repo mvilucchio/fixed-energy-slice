@@ -193,7 +193,7 @@ def compute_beta(beta, m, q0, q1, h, p, e, x):
 def beta_q_e(q0, q1, m, e, p, h, x, tol=1e-9):
     return root_scalar(
             compute_beta,
-            bracket=[1e-3, 1e3],
+            bracket=[1e-5, 1e5],
             args=(m, q0, q1, h, p, e, x),
             #method="bisect",
             xtol=tol,
@@ -223,83 +223,16 @@ def compute_f_FP(beta : float, m : float, q0: float, q1: float, h: float, p: int
         + integral
     ) / (-beta) + h * m
 
-
-#@njit()
-#def deltaf_FP(m, q, h, p, e):
-#    beta = beta_q_e(q, m, e, p, h)
-#    J0 = -e
-#    integral = np.sum(
-#        weights
-#        * (
-#            np.log(
-#                2
-#                * np.cosh(
-#                    beta
-#                    * (
-#                        p * J0 * m ** (p - 1)
-#                        + roots * np.sqrt(p * q ** (p - 1) / 2)
-#                        + h
-#                    )
-#                )
-#            )
-#        )
-#    )
-#    return (
-#        (
-#            0.25 * beta**2 * (p - 1) * q**p
-#            - (p - 1) * beta * J0 * m**p
-#            + 0.25 * beta**2
-#            - 0.25 * beta**2 * p * q ** (p - 1)
-#            + integral
-#        )
-#        / (-beta)
-#        + h * m
-#        - (0.25 * beta_q_e(0, 0, e, p, 0) ** 2 + np.log(2)) / (-beta_q_e(0, 0, e, p, 0))
-#    )
-
-
-#@njit()
-#def s_FP(m, q, h, p, e):
-#    beta = beta_q_e(q, m, e, p, h)
-#    J0 = -e
-#    integral = np.sum(
-#        weights
-#        * (
-#            np.log(
-#                2
-#                * np.cosh(
-#                    beta
-#                    * (
-#                        p * J0 * m ** (p - 1)
-#                        + roots * np.sqrt(p * q ** (p - 1) / 2)
-#                        + h
-#                    )
-#                )
-#            )
-#        )
-#    )
-#    return (
-#        (
-#            0.25 * beta**2 * (p - 1) * q**p
-#            - (p - 1) * beta * J0 * m**p
-#            + 0.25 * beta**2
-#            - 0.25 * beta**2 * p * q ** (p - 1)
-#            + integral
-#        )
-#        - beta * h * m
-#        + beta * (-J0 * m**p - 0.5 * beta * (1 - q**p))
-#    )
-
-
-
 # @njit()
-def compute_h(beta, h, m , q0, q1, p, e, x):
+def compute_h(h, m , q0, q1, p, e, x):
+    beta = beta_q_e(q0, q1, m, e, p, h, x)
+    #print(f"compute_h: beta = {beta}, h = {h}, m = {compute_m_FP(beta, m , q0, q1, h, p, e, x)}")
     return compute_m_FP(beta, m , q0, q1, h, p, e, x) - m
 
 
 # ---
 # @njit()
-def fixed_points_h_q(beta, m, e, p, x, blend=0.25, tol=1e-9, h_init=-0.1, q0_init=0.01, q1_init=0.01):
+def fixed_points_h_q(m, e, p, x, blend=0.25, tol=1e-9, h_init=-0.1, q0_init=0.01, q1_init=0.01):
     err = 1e10
     q0 = q0_init
     q1 = q1_init
@@ -310,11 +243,12 @@ def fixed_points_h_q(beta, m, e, p, x, blend=0.25, tol=1e-9, h_init=-0.1, q0_ini
         h_new = root_scalar(
             compute_h,
             bracket=[-1e3, 1e3],
-            args=(beta, m , q0, q1, p, e, x),
+            args=(m , q0, q1, p, e, x),
             method="bisect",
             xtol=tol,
             rtol=tol,
         ).root
+        beta = beta_q_e(q0, q1, m, e, p, h_new, x)
         q0_new = compute_q0_FP(beta, m , q0, q1, h, p, e, x)
         q1_new = compute_q1_FP(beta, m , q0, q1, h, p, e, x)
         if q0_new >= 1 or q1_new >= 1:
