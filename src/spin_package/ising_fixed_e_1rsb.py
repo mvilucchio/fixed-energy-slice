@@ -4,7 +4,7 @@ from scipy.optimize import root_scalar
 from math import log, log1p, exp, atanh, sqrt
 
 # gaussian integration
-r, w = np.polynomial.hermite.hermgauss(20)
+r, w = np.polynomial.hermite.hermgauss(50)
 
 roots = np.sqrt(2) * np.array(r)
 weights = np.array(w) / np.sqrt(np.pi)
@@ -80,7 +80,6 @@ def compute_num_f(beta, x, m, q0, q1, h, p, e, root2):
                 beta
                 * G
             )
-            ** x
             )
         )
     )
@@ -122,12 +121,11 @@ def compute_num_e2(beta, x, m, q0, q1, h, p, e, root2):
             )
         )
         * (
-            1 + 
+            1/x + 
             np.log ( np.cosh(
                 beta
                 * G
             )
-            ** x
             )
         )
     )
@@ -171,7 +169,7 @@ def compute_q1_FP(beta : float, m : float, q0: float, q1: float, h: float, p: in
 
 @njit()
 def compute_e_FP(beta: float, m : float, q0: float, q1: float, h: float, p: int, e: float, x: float):
-    return 0.5 * beta * (q1 ** p - (p - 1) * q0 ** p) + np.sum(
+    return 0.5 * beta * (p - 1) * (q1 ** p - q0 ** p) + np.sum(
         weights
         * ( np.array([
             ( compute_num_e1(beta, x, m, q0, q1, h, p, e, root2) / x - compute_num_e2(beta, x, m, q0, q1, h, p, e, root2)) / compute_denom(beta, x, m, q0, q1, h, p, e, root2)
@@ -179,12 +177,12 @@ def compute_e_FP(beta: float, m : float, q0: float, q1: float, h: float, p: int,
         ]
         ) +
         np.array([
-            ( compute_num_f(beta, x, m, q0, q1, h, p, e, root2) * compute_num_e2(beta, x, m, q0, q1, h, p, e, root2)) / compute_denom(beta, x, m, q0, q1, h, p, e, root2)**2
+            ( compute_num_f(beta, x, m, q0, q1, h, p, e, root2) * compute_num_e1(beta, x, m, q0, q1, h, p, e, root2)) / compute_denom(beta, x, m, q0, q1, h, p, e, root2)**2
             for root2 in roots
         ]
         ) 
         )
-    ) / x
+    )
 
 #@njit()
 def compute_beta(beta, m, q0, q1, h, p, e, x):
@@ -195,7 +193,7 @@ def compute_beta(beta, m, q0, q1, h, p, e, x):
 def beta_q_e(q0, q1, m, e, p, h, x, tol=1e-9):
     return root_scalar(
             compute_beta,
-            bracket=[1e-2, 1e2],
+            bracket=[1e-3, 1e3],
             args=(m, q0, q1, h, p, e, x),
             #method="bisect",
             xtol=tol,
@@ -221,7 +219,7 @@ def compute_f_FP(beta : float, m : float, q0: float, q1: float, h: float, p: int
         )
     )
     return (
-        - 0.25 * beta**2 * (q1 ** p - (p - 1) * q0**p )
+        - 0.25 * beta**2 * (p - 1) * (q1 ** p -  q0**p )
         + integral
     ) / (-beta) + h * m
 
